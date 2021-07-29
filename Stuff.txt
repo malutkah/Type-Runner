@@ -1,5 +1,5 @@
 Wortbibliothek:
-jump, slide, walljump, charge, dodge, swim, dive, roll, hit, kick, grab, release, throw, activate, push, pull, shoot, reload, 
+jump, slide, walljump, charge, dodge, swim(?), dive(?), roll, hit, kick, grab, release, throw, activate, push, pull, shoot, reload, 
 
 
 
@@ -10,3 +10,4 @@ Ein Familienvater, der aufgrund von Corona in Geldschuld geraten ist, hat sich G
 geliehen, da die Bank ihm kein Geld leihen wollte. Leider konnte er auch damit nicht sein kleines Restaurant retten und nun ist 
 seine Familie in Gefahr! Ein verzweifelter Anruf seiner Frau, hektisch werden wenige Worte gewechselt bevor der Anruf abbricht. 
 Wird es unser einfacher Familienvater es schaffen, seine Frau und Kinder zu retten? Ohne nachzudenken, rennt er los….
+

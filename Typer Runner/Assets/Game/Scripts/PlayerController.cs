@@ -63,10 +63,19 @@ public class PlayerController : MonoBehaviour
 
         if (collision.tag == "SlowDown")
         {
-           timeManager.DoSlowdown();
+            timeManager.slowdownFactor = 0.03f;
+            timeManager.DoSlowdown();
         }
     }
 
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.tag == "SlowDown")
+        {
+            timeManager.slowdownFactor = 1f;
+            timeManager.DoSlowdown();
+        }
+    }
 
     public void DoAction(string actionText)
     {

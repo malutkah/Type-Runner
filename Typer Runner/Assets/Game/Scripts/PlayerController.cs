@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour
     private bool isDead = false;
 
     private Vector3 spawn;
+    private Vector3 movement;
 
     private void Awake()
     {
@@ -31,7 +32,7 @@ public class PlayerController : MonoBehaviour
     {
         if (life > 0 && !isDead)
         {
-            var movement = new Vector3(1, 0, 0) * Time.deltaTime * MoveSpeed;
+            movement = new Vector3(1, 0, 0) * Time.deltaTime * MoveSpeed;
 
             if (movement != new Vector3(0, 0, 0))
             {
@@ -63,6 +64,13 @@ public class PlayerController : MonoBehaviour
 
         if (collision.tag == "SlowDown")
         {
+            timeManager.slowdownFactor = 0.03f;
+            timeManager.DoSlowdown();
+        }
+        
+        if (collision.tag == "SlowDownWallRight")
+        {
+            movement = movement * -1;
             timeManager.slowdownFactor = 0.03f;
             timeManager.DoSlowdown();
         }

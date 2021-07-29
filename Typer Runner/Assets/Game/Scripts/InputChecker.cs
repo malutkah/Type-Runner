@@ -27,9 +27,13 @@ public class InputChecker : MonoBehaviour
             {
                 actionText = actionInput.text.Remove(actionInput.text.Length - 1);
 
+                controller.timeManager.slowdownFactor = 1;
+                controller.timeManager.DoSlowdown();
                 controller.DoAction(actionText);
 
+
                 actionInput.text = string.Empty;
+
 
             }
 

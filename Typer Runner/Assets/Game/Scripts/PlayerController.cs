@@ -20,6 +20,7 @@ public class PlayerController : MonoBehaviour
     private bool walljumpOn;
     private bool startGame;
     private bool grounded;
+    private bool respawned = false;
 
     private float groundedRadius = 1.5f;
 
@@ -37,7 +38,9 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         spawn = transform.position;
-        OnLandEvent = new UnityEvent();
+
+        if (OnLandEvent == null)
+            OnLandEvent = new UnityEvent();
     }
 
     private void Start()
@@ -56,6 +59,7 @@ public class PlayerController : MonoBehaviour
         grounded = false;
 
         Collider2D[] colliders = Physics2D.OverlapCircleAll(GroundCheck.position, groundedRadius, WhatIsGround);
+
         for (int i = 0; i < colliders.Length; i++)
         {
             if (colliders[i].gameObject != gameObject)
@@ -70,6 +74,11 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         //if (startGame)
+
+        if (transform.position == spawn)
+        {
+            respawned = false;
+        }
 
         if (life > 0 && !isDead && !walljumpOn)
         {
@@ -114,7 +123,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.tag == "Reset")
+        if (collision.tag == "Reset" && !respawned)
         {
             life--;
 
@@ -128,11 +137,11 @@ public class PlayerController : MonoBehaviour
             if (isDead)
             {
                 Debug.Log("You're dead!");
-            }
-            else
+            } else
             {
                 transform.position = spawn;
                 walljumpOn = false;
+                respawned = true;
             }
 
         }
@@ -162,21 +171,21 @@ public class PlayerController : MonoBehaviour
     {
         switch (actionText)
         {
-            case string k when (k == "jump" || k == "Jump"):
-                Jump();
-                break;
-            case string k when (k == "slide" || k == "Slide"):
-                Slide();
-                break;
-            case string k when (k == "walljump" || k == "Walljump"):
-                WallJump();
-                break;
-            case string k when (k == "reset" || k == "reload" || k == "restart"):
-                Restart();
-                break;
-            case string k when (k == "go" || k == "start"):
-                StartGame();
-                break;
+            case string k when ( k == "jump" || k == "Jump" ):
+            Jump();
+            break;
+            case string k when ( k == "slide" || k == "Slide" ):
+            Slide();
+            break;
+            case string k when ( k == "walljump" || k == "Walljump" ):
+            WallJump();
+            break;
+            case string k when ( k == "reset" || k == "reload" || k == "restart" ):
+            Restart();
+            break;
+            case string k when ( k == "go" || k == "start" ):
+            StartGame();
+            break;
         }
 
     }
@@ -197,7 +206,7 @@ public class PlayerController : MonoBehaviour
         {
             grounded = false;
             rigidbody2D.AddForce(new Vector2(0, JumpForce), ForceMode2D.Impulse);
-            animator.SetBool("doJump", true);
+            animator.SetBool("onGround", false);
         }
     }
 
@@ -214,11 +223,7 @@ public class PlayerController : MonoBehaviour
 
     public void OnLanding()
     {
-        Debug.Log("Landed");
-
-        animator.SetBool("doJump", false);
-        animator.SetBool("isFalling", false);
-        animator.SetBool("hasLanded", true);
+        animator.SetBool("onGround", true);
     }
 
     private void Flip()

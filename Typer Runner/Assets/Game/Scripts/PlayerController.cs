@@ -8,7 +8,8 @@ public class PlayerController : MonoBehaviour
 {
     public float JumpForce = 2f;
     public float MoveSpeed = 10f;
-    public float slopeCheckDistance;
+    public float FallMutliplier = 2.5f;
+    public float LowJumpMutliplier = 2f;
 
     public int life = 3;
 
@@ -28,26 +29,15 @@ public class PlayerController : MonoBehaviour
     private bool grounded;
     private bool respawned = false;
     private bool canDoFrontFlip = false;
-    private bool isOnSlope;
-    private bool canWalkOnSlope;
+    private bool isFalling = false;
 
-    private float maxSlopeAngle;
-    private float slopeDownAngle;
-    private float slopeSideAngle;
-    private float lastSlopeAngle;
     private float groundedRadius = 1.5f;
 
-    private Vector2 newVelocity;
-    private Vector2 newForce;
-    private Vector2 colliderSize;
-    private Vector2 slopeNormalPerp;
 
     private Vector3 spawn;
     private Vector3 movement;
 
     private Animator animator;
-
-    private CapsuleCollider2D capsuleCollider;
 
     [Header("Events")]
     [Space]
@@ -75,18 +65,29 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         CheckGround();
-        SlopeCheck();
     }
     private void Update()
     {
-        //if (startGame)
+        Run();
 
         if (transform.position == spawn)
         {
             respawned = false;
         }
 
-        Run();
+        if (rb.velocity.y < -3)
+        {
+            isFalling = true;
+        }
+        else
+        {
+            isFalling = false;
+        }
+
+        if (isFalling)
+        {
+            Debug.Log("Player is Falling");
+        }
 
     }
 
@@ -198,12 +199,9 @@ public class PlayerController : MonoBehaviour
     {
         if (grounded)
         {
-            grounded = false;
+            grounded = false;           
 
-            //newVelocity.Set(0.0f, 0.0f);
-            //rb.velocity = newVelocity;
-            //newForce.Set(0.0f, JumpForce * 1.25f);
-            rb.AddForce(new Vector2(0, JumpForce * 1.25f), ForceMode2D.Impulse);
+            rb.velocity = Vector2.up * JumpForce * 1.25f;
             
             animator.SetBool("onGround", false);
             animator.SetBool("doFrontFlip", true);
@@ -226,10 +224,7 @@ public class PlayerController : MonoBehaviour
         {
             grounded = false;
 
-            //newVelocity.Set(0.0f, 0.0f);
-            //rb.velocity = newVelocity;
-            //newForce.Set(0.0f, JumpForce);
-            rb.AddForce(new Vector2(0, JumpForce), ForceMode2D.Impulse);
+            rb.velocity = Vector2.up * JumpForce;
 
             animator.SetBool("onGround", false);
             animator.SetBool("doJump", true);
@@ -283,112 +278,24 @@ public class PlayerController : MonoBehaviour
 
     private void Run()
     {
-        if (life > 0 && !isDead && !walljumpOn && !isOnSlope)
+        if (life > 0 && !isDead && !walljumpOn)
         {
-            //movement = new Vector3(1, 0, 0) * Time.deltaTime * MoveSpeed;
+            movement = new Vector3(1, 0, 0) * MoveSpeed * Time.deltaTime;
 
-            //if (movement != new Vector3(0, 0, 0))
-            //{
-            //    transform.position += movement;
-            //}
-
-            newVelocity.Set(MoveSpeed * 1, 0f);
-            rb.velocity = newVelocity;
-
-        } else if (!isDead && !walljumpOn && isOnSlope)
-        {
-            newVelocity.Set(MoveSpeed * slopeNormalPerp.x * -1, MoveSpeed * slopeNormalPerp.y * -1);
-            rb.velocity = newVelocity;
+            if (movement != new Vector3(0, 0, 0))
+            {
+                transform.position += movement;
+            }
         }
 
         if (life > 0 && !isDead && walljumpOn)
         {
-            //movement = new Vector3(-1, 0, 0) * Time.deltaTime * MoveSpeed;
+            movement = new Vector3(-1, 0, 0) * MoveSpeed * Time.deltaTime;
 
-            //if (movement != new Vector3(0, 0, 0))
-            //{
-            //    transform.position += movement;
-            //}
-
-            newVelocity.Set(MoveSpeed * 1, 0f);
-            rb.velocity = newVelocity;
-
-        } else if (!isDead && !walljumpOn && isOnSlope)
-        {
-            newVelocity.Set(MoveSpeed * slopeNormalPerp.x * -1, MoveSpeed * slopeNormalPerp.y * -1);
-            rb.velocity = newVelocity;
-        }
-    }
-
-    private void SlopeCheck()
-    {
-        Vector2 checkPos = transform.position - (Vector3) ( new Vector2(0.0f, colliderSize.y / 2) );
-
-        SlopeCheckHorizontal(checkPos);
-        SlopeCheckVertical(checkPos);
-    }
-
-    private void SlopeCheckHorizontal(Vector2 checkPos)
-    {
-        RaycastHit2D slopeHitFront = Physics2D.Raycast(checkPos, transform.right, slopeCheckDistance, WhatIsGround);
-        RaycastHit2D slopeHitBack = Physics2D.Raycast(checkPos, -transform.right, slopeCheckDistance, WhatIsGround);
-
-        if (slopeHitFront)
-        {
-            isOnSlope = true;
-
-            slopeSideAngle = Vector2.Angle(slopeHitFront.normal, Vector2.up);
-
-        } else if (slopeHitBack)
-        {
-            isOnSlope = true;
-
-            slopeSideAngle = Vector2.Angle(slopeHitBack.normal, Vector2.up);
-        } else
-        {
-            slopeSideAngle = 0.0f;
-            isOnSlope = false;
-        }
-
-    }
-
-    private void SlopeCheckVertical(Vector2 checkPos)
-    {
-        RaycastHit2D hit = Physics2D.Raycast(checkPos, Vector2.down, slopeCheckDistance, WhatIsGround);
-
-        if (hit)
-        {
-
-            slopeNormalPerp = Vector2.Perpendicular(hit.normal).normalized;
-
-            slopeDownAngle = Vector2.Angle(hit.normal, Vector2.up);
-
-            if (slopeDownAngle != lastSlopeAngle)
+            if (movement != new Vector3(0, 0, 0))
             {
-                isOnSlope = true;
+                transform.position += movement;
             }
-
-            lastSlopeAngle = slopeDownAngle;
-
-            Debug.DrawRay(hit.point, slopeNormalPerp, Color.blue);
-            Debug.DrawRay(hit.point, hit.normal, Color.green);
-
-        }
-
-        if (slopeDownAngle > maxSlopeAngle || slopeSideAngle > maxSlopeAngle)
-        {
-            canWalkOnSlope = false;
-        } else
-        {
-            canWalkOnSlope = true;
-        }
-
-        if (isOnSlope && canWalkOnSlope)
-        {
-            //rb.sharedMaterial = fullFriction;
-        } else
-        {
-            //rb.sharedMaterial = noFriction;
         }
     }
 

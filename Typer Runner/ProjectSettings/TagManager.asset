@@ -9,6 +9,8 @@ TagManager:
   - SlowDownWallRight
   - SlowDownWallLeft
   - Ground
+  - SlowDownFF
+  - ResetSpeed
   layers:
   - Default
   - TransparentFX

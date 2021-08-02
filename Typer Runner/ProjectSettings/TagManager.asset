@@ -11,6 +11,7 @@ TagManager:
   - Ground
   - SlowDownFF
   - ResetSpeed
+  - Obstactle
   layers:
   - Default
   - TransparentFX

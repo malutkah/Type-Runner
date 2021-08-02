@@ -10,6 +10,8 @@ public class PlayerController : MonoBehaviour
     public float MoveSpeed = 10f;
     public float FallMutliplier = 2.5f;
     public float LowJumpMutliplier = 2f;
+    [Range(.5f, 3f)]
+    public float SlideDuration = 1f;
 
     public int life = 3;
 
@@ -39,6 +41,9 @@ public class PlayerController : MonoBehaviour
 
     private Animator animator;
 
+    private BoxCollider2D boxCollider;
+    private CircleCollider2D circleCollider;
+
     [Header("Events")]
     [Space]
     public UnityEvent OnLandEvent;
@@ -57,6 +62,8 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         timeManager = GetComponent<TimeManager>();
         animator = GetComponent<Animator>();
+        boxCollider = GetComponent<BoxCollider2D>();
+        circleCollider = GetComponent<CircleCollider2D>();
 
         walljumpOn = false;
         startGame = false;
@@ -126,7 +133,8 @@ public class PlayerController : MonoBehaviour
             if (isDead)
             {
                 Debug.Log("You're dead!");
-            } else
+            }
+            else
             {
                 transform.position = spawn;
                 walljumpOn = false;
@@ -172,37 +180,49 @@ public class PlayerController : MonoBehaviour
     {
         switch (actionText)
         {
-            case string k when ( k == "jump" || k == "Jump" ):
-            Jump();
-            break;
-            case string k when ( k == "slide" || k == "Slide" ):
-            Slide();
-            break;
-            case string k when ( k == "walljump" || k == "Walljump" ):
-            WallJump();
-            break;
-            case string k when ( k == "reset" || k == "reload" || k == "restart" ):
-            Restart();
-            break;
-            case string k when ( k == "go" || k == "start" ):
-            StartGame();
-            break;
-            case string k when ( k == "frontflip" ):
-            FrontFlip();
-            break;
+            case string k when (k == "jump" || k == "Jump"):
+                Jump();
+                break;
+            case string k when (k == "slide" || k == "Slide"):
+                StartCoroutine(Slide());
+                break;
+            case string k when (k == "walljump" || k == "Walljump"):
+                WallJump();
+                break;
+            case string k when (k == "reset" || k == "reload" || k == "restart"):
+                Restart();
+                break;
+            case string k when (k == "go" || k == "start"):
+                StartGame();
+                break;
+            case string k when (k == "frontflip"):
+                FrontFlip();
+                break;
+            case string k when (k == "dash" || k == "sprint"):
+                Dash();
+                break;
 
         }
 
+    }
+
+    private IEnumerator Dash()
+    {
+        if (grounded)
+        {
+            MoveSpeed *= 1.3f;
+            yield return new WaitForSeconds(3f);
+        }
     }
 
     private void FrontFlip()
     {
         if (grounded)
         {
-            grounded = false;           
+            grounded = false;
 
             rb.velocity = Vector2.up * JumpForce * 1.25f;
-            
+
             animator.SetBool("onGround", false);
             animator.SetBool("doFrontFlip", true);
         }
@@ -231,9 +251,41 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void Slide()
+    private IEnumerator Slide()
     {
-        Debug.Log("Player Slide");
+        animator.SetBool("doSlide", true);
+
+        Vector2 oldSize, oldOffset;
+        SetNewColliderValues(out oldSize, out oldOffset);
+
+        yield return new WaitForSeconds(SlideDuration);
+
+        ResetColliderValues(oldSize, oldOffset);
+
+        animator.SetBool("doSlide", false);
+    }
+
+    private void ResetColliderValues(Vector2 oldSize, Vector2 oldOffset)
+    {
+        boxCollider.size = oldSize;
+        boxCollider.offset = oldOffset;
+
+        circleCollider.offset = new Vector2(.2f, -.38f);
+        circleCollider.radius = .04f;
+    }
+
+    private void SetNewColliderValues(out Vector2 oldSize, out Vector2 oldOffset)
+    {
+        oldSize = boxCollider.size;
+        oldOffset = boxCollider.offset;
+        Vector2 oldCCOffset = circleCollider.offset;
+        float oldRadius = circleCollider.radius;
+
+        boxCollider.size = new Vector2(boxCollider.size.x, boxCollider.size.y / 2);
+        boxCollider.offset = new Vector2(boxCollider.offset.x, -0.3f);
+
+        circleCollider.offset = new Vector2(.2f, -.38f);
+        circleCollider.radius = .04f;
     }
 
     private void WallJump()
@@ -242,6 +294,7 @@ public class PlayerController : MonoBehaviour
     }
     #endregion
 
+    #region Methods
     public void OnLanding()
     {
         animator.SetBool("onGround", true);
@@ -298,5 +351,6 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+    #endregion
 
 }

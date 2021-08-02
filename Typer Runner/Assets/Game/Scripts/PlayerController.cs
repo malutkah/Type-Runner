@@ -126,7 +126,7 @@ public class PlayerController : MonoBehaviour
             timeManager.slowdownFactor = 0.01f;
             timeManager.DoSlowdown();
             walljumpOn = true;
-            //onWall = 2;
+            onWall = 2;
         }
 
         if (collision.tag == "SlowDownWallLeft")
@@ -135,7 +135,7 @@ public class PlayerController : MonoBehaviour
             timeManager.slowdownFactor = 0.01f;
             timeManager.DoSlowdown();
             walljumpOn = false;
-            //onWall = 3;
+            onWall = 3;
         }
     }
 

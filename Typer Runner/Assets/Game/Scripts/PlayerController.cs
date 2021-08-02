@@ -33,6 +33,9 @@ public class PlayerController : MonoBehaviour
     private bool canDoFrontFlip = false;
     private bool isFalling = false;
 
+    [SerializeField]
+    private int onWall = 0; // 0: not on wall; 1: in air; 2: right wall; 3: left wall
+
     private float groundedRadius = 1.5f;
 
 
@@ -96,6 +99,22 @@ public class PlayerController : MonoBehaviour
             Debug.Log("Player is Falling");
         }
 
+        if (onWall == 0)
+        {
+            animator.SetBool("onWall", false);
+            transform.localRotation = Quaternion.Euler(new Vector3(transform.localRotation.x, .0f));
+        }
+
+        if (onWall == 2)
+        {
+            animator.SetBool("onWall", true);
+        }
+
+        if (onWall == 3)
+        {
+            animator.SetBool("onWall", true);
+            transform.localRotation = Quaternion.Euler(new Vector3(transform.localRotation.x, -180.0f));
+        }
     }
 
     private void OnTriggerStay2D(Collider2D collision)
@@ -106,6 +125,7 @@ public class PlayerController : MonoBehaviour
             timeManager.slowdownFactor = 0.01f;
             timeManager.DoSlowdown();
             walljumpOn = true;
+            //onWall = 2;
         }
 
         if (collision.tag == "SlowDownWallLeft")
@@ -114,6 +134,7 @@ public class PlayerController : MonoBehaviour
             timeManager.slowdownFactor = 0.01f;
             timeManager.DoSlowdown();
             walljumpOn = false;
+            //onWall = 3;
         }
     }
 
@@ -143,6 +164,16 @@ public class PlayerController : MonoBehaviour
 
         }
 
+        if (collision.tag == "SlowDownWallRight")
+        {            
+            onWall = 2;
+        }
+
+        if (collision.tag == "SlowDownWallLeft")
+        {
+            onWall = 3;
+        }
+
         if (collision.tag == "ResetSpeed")
         {
             MoveSpeed = 5;
@@ -168,6 +199,12 @@ public class PlayerController : MonoBehaviour
         if (collision.tag.Contains("SlowDown"))
         {
             canInput = false;
+
+            if (!grounded)
+                onWall = 1;
+            else
+                onWall = 0;
+
             timeManager.slowdownFactor = 1f;
             timeManager.DoSlowdown();
         }
@@ -199,7 +236,7 @@ public class PlayerController : MonoBehaviour
                 FrontFlip();
                 break;
             case string k when (k == "dash" || k == "sprint"):
-                Dash();
+                StartCoroutine(Dash());
                 break;
 
         }
@@ -210,8 +247,14 @@ public class PlayerController : MonoBehaviour
     {
         if (grounded)
         {
+            float tmpSpeed = MoveSpeed;
             MoveSpeed *= 1.3f;
-            yield return new WaitForSeconds(3f);
+
+            animator.SetBool("doDash", true);
+            yield return new WaitForSeconds(1.3f);
+            animator.SetBool("doDash", false);
+
+            MoveSpeed = tmpSpeed;
         }
     }
 
@@ -300,6 +343,7 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("onGround", true);
         animator.SetBool("doFrontFlip", false);
         animator.SetBool("doJump", false);
+        animator.SetBool("onWall", false);
     }
 
     private void Flip()

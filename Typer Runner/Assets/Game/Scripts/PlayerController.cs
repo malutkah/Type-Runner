@@ -101,13 +101,14 @@ public class PlayerController : MonoBehaviour
 
         if (onWall == 0)
         {
-            animator.SetBool("onWall", false);
+            //animator.SetBool("onWall", false);
             transform.localRotation = Quaternion.Euler(new Vector3(transform.localRotation.x, .0f));
         }
 
         if (onWall == 2)
         {
             animator.SetBool("onWall", true);
+            transform.localRotation = Quaternion.Euler(new Vector3(transform.localRotation.x, .0f));
         }
 
         if (onWall == 3)

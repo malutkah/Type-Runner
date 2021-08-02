@@ -1,5 +1,9 @@
 Wortbibliothek:
-jump, slide, walljump, charge, dodge, swim(?), dive(?), roll, hit, kick, grab, release, throw, activate, push, pull, shoot, reload, 
+Möglichkeiten:
+walljump, charge, dodge, swim(?), dive(?), roll, hit, kick, grab, release, throw, activate, push, pull, shoot, reload
+
+Bereits eingebaut:
+frontflip, jump, slide
 
 
 

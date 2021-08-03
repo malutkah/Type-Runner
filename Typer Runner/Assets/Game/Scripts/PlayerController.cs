@@ -80,6 +80,7 @@ public class PlayerController : MonoBehaviour
     {
         CheckGround();
     }
+   
     private void Update()
     {
         Run();
@@ -100,7 +101,7 @@ public class PlayerController : MonoBehaviour
 
         if (isFalling)
         {
-            Debug.Log("Player is Falling");
+            //Debug.Log("Player is Falling");
         }
 
     }
@@ -151,7 +152,7 @@ public class PlayerController : MonoBehaviour
             else
             {
                 transform.position = spawn;
-                walljumpOn = false;
+                //walljumpOn = false;
                 respawned = true;
             }
 
@@ -297,7 +298,7 @@ public class PlayerController : MonoBehaviour
 
     private void FrontFlip()
     {
-        if (grounded)
+        if (grounded || walljumpOn)
         {
             grounded = false;
 

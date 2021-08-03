@@ -12,6 +12,7 @@ TagManager:
   - SlowDownFF
   - ResetSpeed
   - Obstactle
+  - Pickup
   layers:
   - Default
   - TransparentFX

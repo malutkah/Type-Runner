@@ -15,6 +15,8 @@ public class PlayerController : MonoBehaviour
 
     public int life = 3;
 
+    public GameObject PickedUpItem;
+
     public TimeManager timeManager;
 
     public bool canInput = false;
@@ -32,11 +34,13 @@ public class PlayerController : MonoBehaviour
     private bool respawned = false;
     private bool canDoFrontFlip = false;
     private bool isFalling = false;
+    private bool canPickup = false;
+    private bool pickedUp = false;
 
     [SerializeField]
     private int onWall = 0; // 0: not on wall; 1: in air; 2: right wall; 3: left wall
 
-    private float groundedRadius = 1.5f;
+    private float groundedRadius = 1.3f;
 
 
     private Vector3 spawn;
@@ -99,23 +103,6 @@ public class PlayerController : MonoBehaviour
             Debug.Log("Player is Falling");
         }
 
-        if (onWall == 0)
-        {
-            //animator.SetBool("onWall", false);
-            transform.localRotation = Quaternion.Euler(new Vector3(transform.localRotation.x, .0f));
-        }
-
-        if (onWall == 2)
-        {
-            animator.SetBool("onWall", true);
-            transform.localRotation = Quaternion.Euler(new Vector3(transform.localRotation.x, .0f));
-        }
-
-        if (onWall == 3)
-        {
-            animator.SetBool("onWall", true);
-            transform.localRotation = Quaternion.Euler(new Vector3(transform.localRotation.x, -180.0f));
-        }
     }
 
     private void OnTriggerStay2D(Collider2D collision)
@@ -126,7 +113,9 @@ public class PlayerController : MonoBehaviour
             timeManager.slowdownFactor = 0.01f;
             timeManager.DoSlowdown();
             walljumpOn = true;
-            onWall = 2;
+            //onWall = 2;
+
+            transform.localRotation = Quaternion.Euler(new Vector3(transform.localRotation.x, .0f));
         }
 
         if (collision.tag == "SlowDownWallLeft")
@@ -134,8 +123,11 @@ public class PlayerController : MonoBehaviour
             canInput = true;
             timeManager.slowdownFactor = 0.01f;
             timeManager.DoSlowdown();
+
+            transform.localRotation = Quaternion.Euler(new Vector3(transform.localRotation.x, -180.0f));
+
             walljumpOn = false;
-            onWall = 3;
+            //onWall = 3;
         }
     }
 
@@ -166,12 +158,14 @@ public class PlayerController : MonoBehaviour
         }
 
         if (collision.tag == "SlowDownWallRight")
-        {            
+        {
+            animator.SetBool("onWall", true);
             onWall = 2;
         }
 
         if (collision.tag == "SlowDownWallLeft")
         {
+            animator.SetBool("onWall", true);
             onWall = 3;
         }
 
@@ -187,9 +181,10 @@ public class PlayerController : MonoBehaviour
             timeManager.DoSlowdown();
         }
 
-        if (collision.tag == "SlowDonwFF")
+        if (collision.tag == "Pickup")
         {
-            canDoFrontFlip = true;
+            canPickup = true;
+            PickedUpItem = collision.gameObject;
             timeManager.slowdownFactor = 0.03f;
             timeManager.DoSlowdown();
         }
@@ -209,6 +204,19 @@ public class PlayerController : MonoBehaviour
             timeManager.slowdownFactor = 1f;
             timeManager.DoSlowdown();
         }
+
+        if (collision.tag == "Pickup")
+        {
+            canPickup = false;
+
+            if (!pickedUp)
+                PickedUpItem = null;
+
+            timeManager.slowdownFactor = 1f;
+            timeManager.DoSlowdown();
+        }
+
+
     }
 
     #endregion
@@ -239,9 +247,37 @@ public class PlayerController : MonoBehaviour
             case string k when (k == "dash" || k == "sprint"):
                 StartCoroutine(Dash());
                 break;
+            case string k when (k == "get" || k == "pickup"):
+                Pickup();
+                break;
+            case string k when (k == "yeet" || k == "throw"):
+                StartCoroutine(Throw());
+                break;
 
         }
 
+    }
+    
+    private IEnumerator Throw()
+    {
+        Rigidbody2D itemRb = PickedUpItem.GetComponent<Rigidbody2D>();
+
+        itemRb.velocity = Vector2.right * 10f;
+
+        yield return new WaitForSeconds(1f);
+
+        Destroy(PickedUpItem);
+    }
+
+    private void Pickup()
+    {
+        if (canPickup)
+        {
+            pickedUp = true;
+            Debug.Log($"Player picked up {PickedUpItem.name}");
+            PickedUpItem.transform.parent = transform;
+            PickedUpItem.transform.localPosition = new Vector3(0, 0);
+        }
     }
 
     private IEnumerator Dash()
@@ -284,7 +320,7 @@ public class PlayerController : MonoBehaviour
 
     private void Jump()
     {
-        if (grounded)
+        if (grounded || walljumpOn)
         {
             grounded = false;
 

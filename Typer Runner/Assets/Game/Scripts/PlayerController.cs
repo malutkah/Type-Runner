@@ -42,7 +42,6 @@ public class PlayerController : MonoBehaviour
 
     private float groundedRadius = 1.3f;
 
-
     private Vector3 spawn;
     private Vector3 movement;
 
@@ -56,12 +55,15 @@ public class PlayerController : MonoBehaviour
     public UnityEvent OnLandEvent;
 
     #region Unity
+
     private void Awake()
     {
         spawn = transform.position;
 
         if (OnLandEvent == null)
             OnLandEvent = new UnityEvent();
+
+        startGame = false;
     }
 
     private void Start()
@@ -80,10 +82,11 @@ public class PlayerController : MonoBehaviour
     {
         CheckGround();
     }
-   
+
     private void Update()
     {
-        Run();
+        if (startGame)
+            Run();
 
         if (transform.position == spawn)
         {
@@ -128,7 +131,7 @@ public class PlayerController : MonoBehaviour
             transform.localRotation = Quaternion.Euler(new Vector3(transform.localRotation.x, -180.0f));
 
             walljumpOn = false;
-            //onWall = 3;
+            onWall = 3;
         }
     }
 
@@ -152,7 +155,9 @@ public class PlayerController : MonoBehaviour
             else
             {
                 transform.position = spawn;
-                //walljumpOn = false;
+                transform.localRotation = Quaternion.Euler(new Vector3(transform.localRotation.x, .0f));
+
+                walljumpOn = false;
                 respawned = true;
             }
 
@@ -197,10 +202,11 @@ public class PlayerController : MonoBehaviour
         {
             canInput = false;
 
-            if (!grounded)
-                onWall = 1;
-            else
-                onWall = 0;
+            //if (!grounded)
+            //    onWall = 1;
+            //else
+            //    onWall = 0;
+            transform.localRotation = Quaternion.Euler(new Vector3(transform.localRotation.x, .0f));
 
             timeManager.slowdownFactor = 1f;
             timeManager.DoSlowdown();
@@ -258,7 +264,7 @@ public class PlayerController : MonoBehaviour
         }
 
     }
-    
+
     private IEnumerator Throw()
     {
         Rigidbody2D itemRb = PickedUpItem.GetComponent<Rigidbody2D>();
@@ -321,7 +327,7 @@ public class PlayerController : MonoBehaviour
 
     private void Jump()
     {
-        if (grounded || walljumpOn)
+        if (grounded || walljumpOn || onWall == 3)
         {
             grounded = false;
 

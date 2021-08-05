@@ -9,6 +9,8 @@ public class InputChecker : MonoBehaviour
     public InputField actionInput;
     public bool DemoMode = false;
 
+    public GameManager manager;
+
     private string actionText;
     private PlayerController controller;
     private PlayerController_Demo demo_controller;
@@ -53,16 +55,29 @@ public class InputChecker : MonoBehaviour
                 demo_controller.timeManager.slowdownFactor = 1;
                 demo_controller.timeManager.DoSlowdown();
                 demo_controller.DoAction(actionText);
-                
-            } else
+
+            }
+            else
             {
                 controller.timeManager.slowdownFactor = 1;
                 controller.timeManager.DoSlowdown();
                 controller.DoAction(actionText);
+
+                manager.Score += GetActionLength() * 10;
             }
 
 
             actionInput.text = string.Empty;
         }
+    }
+
+    public int GetActionLength()
+    {
+        return actionText.Length;
+    }
+
+    public string GetAction()
+    {
+        return actionText;
     }
 }

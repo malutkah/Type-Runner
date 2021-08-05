@@ -812,8 +812,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: -0.000030517578, y: 249}
-  m_SizeDelta: {x: 1091.1, y: 463.82}
+  m_AnchoredPosition: {x: 0, y: 279}
+  m_SizeDelta: {x: 1091.1, y: 538.57}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1205063200
 MonoBehaviour:
@@ -835,10 +835,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: " - jump - the player jumps\n\n - frontflip - the player jumps higher\n\n-
-    slide - the player can slide under obstacles\n\n - dash - the player is faster
-    for a short time\n\n - pickup - you can pickup an item if you want\n\n - throw
-    - you can throw a picked up item"
+  m_text: " - go - starts the run\n\n - jump - the player jumps\n\n - frontflip -
+    the player jumps higher\n\n - slide - the player can slide under obstacles\n\n
+    - dash - the player is faster for a short time\n\n - pickup - you can pickup
+    an item if you want\n\n - throw - you can throw a picked up item"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f40bad514e81b10458d4d2e2a8ca5549, type: 2}
   m_sharedMaterial: {fileID: 3569610047993503535, guid: f40bad514e81b10458d4d2e2a8ca5549, type: 2}

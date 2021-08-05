@@ -13,6 +13,8 @@ TagManager:
   - ResetSpeed
   - Obstactle
   - Pickup
+  - SlowDownJump
+  - SlowDownSlide
   layers:
   - Default
   - TransparentFX

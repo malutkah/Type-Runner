@@ -35,7 +35,7 @@ public class PlayerController : MonoBehaviour
     private bool canDoFrontFlip = false;
     private bool isFalling = false;
     private bool canPickup = false;
-    private bool pickedUp = false;
+    private bool pickedUp = false;    
 
     [SerializeField]
     private int onWall = 0; // 0: not on wall; 1: in air; 2: right wall; 3: left wall
@@ -180,7 +180,7 @@ public class PlayerController : MonoBehaviour
             MoveSpeed = 5;
         }
 
-        if (collision.tag == "SlowDown")
+        if (collision.tag.Contains("SlowDown"))
         {
             canInput = true;
             timeManager.slowdownFactor = 0.03f;
@@ -233,16 +233,13 @@ public class PlayerController : MonoBehaviour
     {
         switch (actionText)
         {
-            case string k when (k == "jump" || k == "Jump"):
+            case string k when (k.Contains(ActionConstants.jump[0]) || k == ActionConstants.jump[1]):
                 Jump();
                 break;
-            case string k when (k == "slide" || k == "Slide"):
+            case string k when (k == ActionConstants.slide[0] || k == ActionConstants.slide[1]):
                 StartCoroutine(Slide());
                 break;
-            case string k when (k == "walljump" || k == "Walljump"):
-                WallJump();
-                break;
-            case string k when (k == "reset" || k == "reload" || k == "restart"):
+            case string k when (k == ActionConstants.reset[0] || k == ActionConstants.reset[1] || k == ActionConstants.reset[2] || k == ActionConstants.reset[3]):
                 Restart();
                 break;
             case string k when (k == "go" || k == "start"):

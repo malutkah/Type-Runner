@@ -5125,7 +5125,7 @@ GameObject:
   - component: {fileID: 787761263}
   m_Layer: 0
   m_Name: Reset (4)
-  m_TagString: Reset
+  m_TagString: ChangeLevel
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -9861,7 +9861,6 @@ MonoBehaviour:
   WhatIsGround:
     serializedVersion: 2
     m_Bits: 8
-  walljumpOn: 0
   OnLandEvent:
     m_PersistentCalls:
       m_Calls:
@@ -10077,6 +10076,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7000d818d40ab6489dac65f9d6f4eb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Player: {fileID: 522152066}
+  MainCam: {fileID: 1386524485}
+  Canvas: {fileID: 1375214489}
   commandField: {fileID: 1109957235}
   ScoreText: {fileID: 1352397326}
   Score: 0

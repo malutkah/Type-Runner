@@ -15,6 +15,7 @@ TagManager:
   - Pickup
   - SlowDownJump
   - SlowDownSlide
+  - ChangeLevel
   layers:
   - Default
   - TransparentFX

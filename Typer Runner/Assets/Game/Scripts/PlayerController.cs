@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour
     public float MoveSpeed = 10f;
     public float FallMutliplier = 2.5f;
     public float LowJumpMutliplier = 2f;
+    
     [Range(.5f, 3f)]
     public float SlideDuration = 1f;
 
@@ -29,8 +30,6 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;
 
     private bool isDead = false;
-
-    [SerializeField]
     private bool walljumpOn;
     private bool onWallLeft = false;
     private bool startGame;
@@ -177,6 +176,12 @@ public class PlayerController : MonoBehaviour
             canPickup = true;
             PickedUpItem = collision.gameObject;
             DoSlowdown(.03f);
+        }
+
+        if (collision.tag == TagConstants.ChangeLevel)
+        {
+            startGame = false;
+            SceneManager.LoadScene("Main 2");
         }
     }
 
@@ -406,6 +411,14 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+    
+    public void LoadedNewScene()
+    {
+        startGame = false;
+        walljumpOn = false;
+        grounded = true;
+    }
+    
     #endregion
 
 }

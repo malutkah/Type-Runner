@@ -7,9 +7,11 @@ using UnityEngine.SceneManagement;
 public class PlayerController : MonoBehaviour
 {
     public float JumpForce = 2f;
+    public float FrontFlipMultiplicator = 1.3f;
     public float MoveSpeed = 10f;
     public float FallMutliplier = 2.5f;
     public float LowJumpMutliplier = 2f;
+    
     [Range(.5f, 3f)]
     public float SlideDuration = 1f;
 
@@ -29,16 +31,13 @@ public class PlayerController : MonoBehaviour
 
     private bool isDead = false;
     private bool walljumpOn;
+    private bool onWallLeft = false;
     private bool startGame;
     private bool grounded;
     private bool respawned = false;
-    private bool canDoFrontFlip = false;
     private bool isFalling = false;
     private bool canPickup = false;
     private bool pickedUp = false;
-
-    [SerializeField]
-    private int onWall = 0; // 0: not on wall; 1: in air; 2: right wall; 3: left wall
 
     private float groundedRadius = 1.3f;
 
@@ -64,18 +63,13 @@ public class PlayerController : MonoBehaviour
             OnLandEvent = new UnityEvent();
 
         startGame = false;
-    }
+        walljumpOn = false;
 
-    private void Start()
-    {
         rb = GetComponent<Rigidbody2D>();
         timeManager = GetComponent<TimeManager>();
         animator = GetComponent<Animator>();
         boxCollider = GetComponent<BoxCollider2D>();
         circleCollider = GetComponent<CircleCollider2D>();
-
-        walljumpOn = false;
-        startGame = false;
     }
 
     private void FixedUpdate()
@@ -93,19 +87,19 @@ public class PlayerController : MonoBehaviour
             respawned = false;
         }
 
-        if (rb.velocity.y < -3)
-        {
-            isFalling = true;
-        }
-        else
-        {
-            isFalling = false;
-        }
+        //if (rb.velocity.y < -3)
+        //{
+        //    isFalling = true;
+        //}
+        //else
+        //{
+        //    isFalling = false;
+        //}
 
-        if (isFalling)
-        {
-            //Debug.Log("Player is Falling");
-        }
+        //if (isFalling)
+        //{
+        //    //Debug.Log("Player is Falling");
+        //}
 
     }
 
@@ -113,25 +107,23 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.tag == "SlowDownWallRight")
         {
-            canInput = true;
-            timeManager.slowdownFactor = 0.01f;
-            timeManager.DoSlowdown();
-            walljumpOn = true;
-            //onWall = 2;
+            //canInput = true;
+            DoSlowdown(.01f);
 
             transform.localRotation = Quaternion.Euler(new Vector3(transform.localRotation.x, .0f));
+
+            walljumpOn = true;
         }
 
         if (collision.tag == "SlowDownWallLeft")
         {
-            canInput = true;
-            timeManager.slowdownFactor = 0.01f;
-            timeManager.DoSlowdown();
+            //canInput = true;
+            DoSlowdown(.01f);
 
             transform.localRotation = Quaternion.Euler(new Vector3(transform.localRotation.x, -180.0f));
 
             walljumpOn = false;
-            onWall = 3;
+            onWallLeft = true;
         }
     }
 
@@ -163,16 +155,9 @@ public class PlayerController : MonoBehaviour
 
         }
 
-        if (collision.tag == "SlowDownWallRight")
+        if (collision.tag == "SlowDownWallRight" || collision.tag == "SlowDownWallLeft")
         {
             animator.SetBool("onWall", true);
-            onWall = 2;
-        }
-
-        if (collision.tag == "SlowDownWallLeft")
-        {
-            animator.SetBool("onWall", true);
-            onWall = 3;
         }
 
         if (collision.tag == "ResetSpeed")
@@ -180,19 +165,23 @@ public class PlayerController : MonoBehaviour
             MoveSpeed = 5;
         }
 
-        if (collision.tag == "SlowDown")
+        if (collision.tag.Contains("SlowDown"))
         {
             canInput = true;
-            timeManager.slowdownFactor = 0.03f;
-            timeManager.DoSlowdown();
+            DoSlowdown(.03f);
         }
 
         if (collision.tag == "Pickup")
         {
             canPickup = true;
             PickedUpItem = collision.gameObject;
-            timeManager.slowdownFactor = 0.03f;
-            timeManager.DoSlowdown();
+            DoSlowdown(.03f);
+        }
+
+        if (collision.tag == TagConstants.ChangeLevel)
+        {
+            startGame = false;
+            SceneManager.LoadScene("Main 2");
         }
     }
 
@@ -200,16 +189,8 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.tag.Contains("SlowDown"))
         {
-            canInput = false;
-
-            //if (!grounded)
-            //    onWall = 1;
-            //else
-            //    onWall = 0;
             transform.localRotation = Quaternion.Euler(new Vector3(transform.localRotation.x, .0f));
-
-            timeManager.slowdownFactor = 1f;
-            timeManager.DoSlowdown();
+            DoSlowdown(1f);
         }
 
         if (collision.tag == "Pickup")
@@ -219,11 +200,8 @@ public class PlayerController : MonoBehaviour
             if (!pickedUp)
                 PickedUpItem = null;
 
-            timeManager.slowdownFactor = 1f;
-            timeManager.DoSlowdown();
+            DoSlowdown(1f);
         }
-
-
     }
 
     #endregion
@@ -233,23 +211,20 @@ public class PlayerController : MonoBehaviour
     {
         switch (actionText)
         {
-            case string k when (k == "jump" || k == "Jump"):
+            case string k when (k.Contains(ActionConstants.jump[0]) || k == ActionConstants.jump[1]):
                 Jump();
                 break;
-            case string k when (k == "slide" || k == "Slide"):
+            case string k when (k == ActionConstants.slide[0] || k == ActionConstants.slide[1]):
                 StartCoroutine(Slide());
                 break;
-            case string k when (k == "walljump" || k == "Walljump"):
-                WallJump();
-                break;
-            case string k when (k == "reset" || k == "reload" || k == "restart"):
+            case string k when (k == ActionConstants.reset[0] || k == ActionConstants.reset[1] || k == ActionConstants.reset[2] || k == ActionConstants.reset[3]):
                 Restart();
                 break;
             case string k when (k == "go" || k == "start"):
                 StartGame();
                 break;
             case string k when (k == "frontflip"):
-                FrontFlip();
+                Jump(FrontFlipMultiplicator);
                 break;
             case string k when (k == "dash" || k == "sprint"):
                 StartCoroutine(Dash());
@@ -260,9 +235,7 @@ public class PlayerController : MonoBehaviour
             case string k when (k == "yeet" || k == "throw"):
                 StartCoroutine(Throw());
                 break;
-
         }
-
     }
 
     private IEnumerator Throw()
@@ -281,7 +254,9 @@ public class PlayerController : MonoBehaviour
         if (canPickup)
         {
             pickedUp = true;
+
             Debug.Log($"Player picked up {PickedUpItem.name}");
+
             PickedUpItem.transform.parent = transform;
             PickedUpItem.transform.localPosition = new Vector3(0, 0);
         }
@@ -295,23 +270,12 @@ public class PlayerController : MonoBehaviour
             MoveSpeed *= 1.3f;
 
             animator.SetBool("doDash", true);
-            yield return new WaitForSeconds(1.3f);
+
+            yield return new WaitForSeconds(1f);
+
             animator.SetBool("doDash", false);
 
             MoveSpeed = tmpSpeed;
-        }
-    }
-
-    private void FrontFlip()
-    {
-        if (grounded || walljumpOn)
-        {
-            grounded = false;
-
-            rb.velocity = Vector2.up * JumpForce * 1.25f;
-
-            animator.SetBool("onGround", false);
-            animator.SetBool("doFrontFlip", true);
         }
     }
 
@@ -325,56 +289,40 @@ public class PlayerController : MonoBehaviour
         startGame = true;
     }
 
-    private void Jump()
+    private void Jump(float frontFlipMultiplicator = 1)
     {
-        if (grounded || walljumpOn || onWall == 3)
+        if (grounded || walljumpOn || onWallLeft)
         {
             grounded = false;
+            onWallLeft = false;
 
-            rb.velocity = Vector2.up * JumpForce;
+            rb.velocity = Vector2.up * JumpForce * frontFlipMultiplicator;
 
             animator.SetBool("onGround", false);
-            animator.SetBool("doJump", true);
+
+            if (frontFlipMultiplicator > 1)
+                animator.SetBool("doFrontFlip", true);
+            else
+                animator.SetBool("doJump", true);
         }
     }
 
     private IEnumerator Slide()
     {
-        animator.SetBool("doSlide", true);
+        Vector2 oldSize, oldOffset, oldCCOffset;
+        float oldRadius;
+        SetOldColliderValues(out oldSize, out oldOffset, out oldCCOffset, out oldRadius);
 
-        Vector2 oldSize, oldOffset;
-        SetNewColliderValues(out oldSize, out oldOffset);
+        SetNewColliderValues();
+
+        animator.SetBool("doSlide", true);
 
         yield return new WaitForSeconds(SlideDuration);
 
-        ResetColliderValues(oldSize, oldOffset);
+        ResetColliderValues(oldSize, oldOffset, oldCCOffset, oldRadius);
 
         animator.SetBool("doSlide", false);
     }
-
-    private void ResetColliderValues(Vector2 oldSize, Vector2 oldOffset)
-    {
-        boxCollider.size = oldSize;
-        boxCollider.offset = oldOffset;
-
-        circleCollider.offset = new Vector2(.2f, -.38f);
-        circleCollider.radius = .04f;
-    }
-
-    private void SetNewColliderValues(out Vector2 oldSize, out Vector2 oldOffset)
-    {
-        oldSize = boxCollider.size;
-        oldOffset = boxCollider.offset;
-        Vector2 oldCCOffset = circleCollider.offset;
-        float oldRadius = circleCollider.radius;
-
-        boxCollider.size = new Vector2(boxCollider.size.x, boxCollider.size.y / 2);
-        boxCollider.offset = new Vector2(boxCollider.offset.x, -0.3f);
-
-        circleCollider.offset = new Vector2(.2f, -.38f);
-        circleCollider.radius = .04f;
-    }
-
     private void WallJump()
     {
         Debug.Log("Player Walljump");
@@ -382,21 +330,45 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region Methods
+
+    private void SetOldColliderValues(out Vector2 oldSize, out Vector2 oldOffset, out Vector2 oldCCOffset, out float oldRadius)
+    {
+        oldSize = boxCollider.size;
+        oldOffset = boxCollider.offset;
+        oldCCOffset = circleCollider.offset;
+        oldRadius = circleCollider.radius;
+    }
+
+    private void ResetColliderValues(Vector2 oldSize, Vector2 oldOffset, Vector2 oldCCOffset, float oldRadius)
+    {
+        boxCollider.size = oldSize;
+        boxCollider.offset = oldOffset;
+
+        circleCollider.offset = oldCCOffset;
+        circleCollider.radius = oldRadius;
+    }
+
+    private void SetNewColliderValues()
+    {
+        boxCollider.size = new Vector2(boxCollider.size.x, boxCollider.size.y / 2);
+        boxCollider.offset = new Vector2(boxCollider.offset.x, -0.3f);
+
+        circleCollider.offset = new Vector2(.2f, -.38f);
+        circleCollider.radius = .04f;
+    }
+
+    private void DoSlowdown(float slowdownFactor)
+    {
+        timeManager.slowdownFactor = slowdownFactor;
+        timeManager.DoSlowdown();
+    }
+
     public void OnLanding()
     {
         animator.SetBool("onGround", true);
         animator.SetBool("doFrontFlip", false);
         animator.SetBool("doJump", false);
         animator.SetBool("onWall", false);
-    }
-
-    private void Flip()
-    {
-        Vector3 scale = transform.localScale;
-
-        scale.x *= -1;
-
-        transform.localScale = scale;
     }
 
     private void CheckGround()
@@ -439,6 +411,14 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+    
+    public void LoadedNewScene()
+    {
+        startGame = false;
+        walljumpOn = false;
+        grounded = true;
+    }
+    
     #endregion
 
 }

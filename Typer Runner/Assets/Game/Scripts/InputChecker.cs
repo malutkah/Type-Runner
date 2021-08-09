@@ -66,7 +66,6 @@ public class InputChecker : MonoBehaviour
                 manager.Score += GetActionLength() * 10;
             }
 
-
             actionInput.text = string.Empty;
         }
     }

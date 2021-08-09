@@ -22,4 +22,5 @@ public static class TagConstants
 {
     public static readonly string SD_Jump = "SlowDownJump";
     public static readonly string SD_Slide = "SlowDownSlide";
+    public static readonly string ChangeLevel = "ChangeLevel";
 }

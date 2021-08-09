@@ -1,9 +1,9 @@
 Wortbibliothek:
 Möglichkeiten:
-walljump, charge, dodge, swim(?), dive(?), roll, hit, kick, grab, release, throw, activate, push, pull, shoot, reload
+walljump, charge, dodge, swim(?), dive(?), roll, hit, kick, grab, release, activate, push, pull, shoot, reload
 
 Bereits eingebaut:
-frontflip, jump, slide
+frontflip, jump, slide, throw, 
 
 
 ich nicht ich

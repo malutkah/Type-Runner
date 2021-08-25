@@ -110,7 +110,7 @@ public class PlayerController : MonoBehaviour
             //canInput = true;
             DoSlowdown(.01f);
 
-            transform.localRotation = Quaternion.Euler(new Vector3(transform.localRotation.x, .0f));
+            transform.localRotation = Quaternion.Euler(new Vector3(transform.localRotation.x, -180f));
 
             walljumpOn = true;
         }
@@ -120,7 +120,7 @@ public class PlayerController : MonoBehaviour
             //canInput = true;
             DoSlowdown(.01f);
 
-            transform.localRotation = Quaternion.Euler(new Vector3(transform.localRotation.x, -180.0f));
+            transform.localRotation = Quaternion.Euler(new Vector3(transform.localRotation.x, .0f));
 
             walljumpOn = false;
             onWallLeft = true;
@@ -187,7 +187,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.tag.Contains("SlowDown"))
+        if (collision.tag.Contains("SlowDown") && !collision.tag.Contains("SlowDownWall"))
         {
             transform.localRotation = Quaternion.Euler(new Vector3(transform.localRotation.x, .0f));
             DoSlowdown(1f);

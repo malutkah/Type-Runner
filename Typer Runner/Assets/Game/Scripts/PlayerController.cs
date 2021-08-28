@@ -86,21 +86,6 @@ public class PlayerController : MonoBehaviour
         {
             respawned = false;
         }
-
-        //if (rb.velocity.y < -3)
-        //{
-        //    isFalling = true;
-        //}
-        //else
-        //{
-        //    isFalling = false;
-        //}
-
-        //if (isFalling)
-        //{
-        //    //Debug.Log("Player is Falling");
-        //}
-
     }
 
     private void OnTriggerStay2D(Collider2D collision)
@@ -281,6 +266,7 @@ public class PlayerController : MonoBehaviour
 
     private void Restart()
     {
+        Destroy(gameObject);
         SceneManager.LoadScene("Main");
     }
 

@@ -7,7 +7,7 @@ using TMPro;
 
 public class GameManager : MonoBehaviour
 {
-    public GameObject Player, MainCam, SpawnMap2, EventSystem;
+    public GameObject Player, MainCam, EventSystem;
 
     public Canvas Canvas;
 
@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
     public int Score;
 
     private InputChecker inputChecker;
-
+    private GameObject SpawnMap2;
     private PlayerController playerController;
 
     #region Unity

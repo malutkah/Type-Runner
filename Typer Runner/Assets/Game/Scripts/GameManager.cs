@@ -7,18 +7,19 @@ using TMPro;
 
 public class GameManager : MonoBehaviour
 {
-    public GameObject Player, MainCam;
+    public GameObject Player, MainCam, EventSystem;
 
     public Canvas Canvas;
 
     public InputField commandField;
+
 
     public TextMeshProUGUI ScoreText;
 
     public int Score;
 
     private InputChecker inputChecker;
-
+    private GameObject SpawnMap2;
     private PlayerController playerController;
 
     #region Unity
@@ -38,6 +39,7 @@ public class GameManager : MonoBehaviour
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
+
     private void Update()
     {
         ScoreText.text = Score.ToString();
@@ -50,11 +52,13 @@ public class GameManager : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         Debug.Log($"OnSceneLoaded: {scene.name}");
-        
+
         if (scene.name == "Main 2")
         {
+            SpawnMap2 = GameObject.Find("SpawnMap2");
+            //Player.transform.localPosition = new Vector3(0f, 0f, 0f);
+            Player.transform.localPosition = SpawnMap2.transform.localPosition;
             playerController.LoadedNewScene();
-            Player.transform.position = new Vector3(-119.0618f, 38.53685f, .0f);
         }
     }
 
@@ -65,6 +69,7 @@ public class GameManager : MonoBehaviour
 
         // player
         DontDestroyOnLoad(Player);
+        DontDestroyOnLoad(EventSystem);
 
         // canvas
         DontDestroyOnLoad(Canvas);
